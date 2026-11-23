@@ -1,0 +1,103 @@
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { OffCanvasCats } from './OffCanvasCategorias/off-canvas-cats';
+import { SessionButton } from './SessionButton/session-button';
+import { OffCanvasCarrito } from '../../carrito/OffCanvasCarrito/off-canvas-carrito';
+import { StoreGlobal } from '../../../_shared_/controllers/services/store-global';
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [RouterLink, OffCanvasCats, SessionButton, OffCanvasCarrito],
+  templateUrl: './header.html',
+  styleUrl: './header.css',
+})
+export class Header {
+  constructor(readonly store: StoreGlobal) {}
+}
+
+
+// Código React original conservado como referencia y totalmente comentado.
+// Origen: componentes\zonaTienda\Layout\Header\Header.jsx
+// import './Header.css'
+// import { useNavigate } from 'react-router'
+// import useStore from '../../../../stateGlobal/zustandStateSlices.js'
+// import OffCanvasCats from './OffCanvasCategorias/OffCanvasCats.jsx'
+// import SessionButton from './SessionButton/SessionButton.jsx'
+// import OffCanvasCarrito from '../../Carrito/OffCanvasCarrito/OffCanvas.jsx'
+//
+// function Header(){
+//   const { datosCliente, carrito }=useStore(); //<--- hook de ZUSTAND q devuelve el objeto global del store al cual tienen acceso todos los componentes de la app
+//   const cantidadArticulos = carrito?.itemsPedido?.reduce(
+//     (total, item) => total + (Number(item.cantidad) || 0),
+//     0,
+//   ) || 0
+//   const saltarAUrl=useNavigate(); //<--- el hook useNavigate() de react-router nos permite saltar a una url si recargar toda la app desde el principio
+//                                   //invoca al modulo de enrutamiento y carga componente asociado a esa url
+//   //console.log('valor de la variable satarAUrl: ', saltarAUrl)
+//
+//
+//     return (
+//     <div className="container">
+//         <div className="row">
+//             {/* .... logo de la tienda.....*/}
+//             <div className="col-2">
+//                 <img src="/imagenes/logo_pccomponentes.png" alt="logo"  className="img-fluid"  style={{ cursor: 'pointer' }}/>
+//             </div>
+//
+//             {/* .... offcanvas con categorias.....*/}
+//             <div className="col-2">
+//                 <OffCanvasCats />
+//             </div>
+//
+//             {/* .... caja de busqueda y dropdown de catalogo.....*/}
+//             <div className="col-4">
+//               <div className="d-flex flex-row justify-content-between mt-5 mb-4">
+//
+//                 <div className="dropdown">
+//                   <button className="btn btn-outline-secondary dropdown-toggle" type="button" style={{ borderRadius: '0'}} id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+//                     Todo el Catálogo
+//                   </button>
+//                   <ul className="dropdown-menu">
+//                     <li><a className="dropdown-item" href="#">Todo el Catálogo</a></li>
+//                     <li><a className="dropdown-item" href="#">Reacondicionados</a></li>
+//                   </ul>
+//                 </div>
+//
+//                 <div className="input-group w-100">
+//                   <input type="search" className="form-control" style={{ borderRadius: '0'}} placeholder="Buscar" aria-label="Buscar" />
+//                   <button className="btn btn-outline-secondary" style={{ borderRadius: '0'}} type="submit"><i className="fa-solid fa-magnifying-glass"></i></button>
+//                 </div>
+//
+//               </div>
+//             </div>
+//
+//             {/* .... botones de inicio sesion y carrito compra.....*/}
+//             <div className="col-4">
+//                 <div className="d-flex flex-row justify-content-end mt-5 mb-4">
+//                     <button className="btn btn-outline-secondary btn-sm"><img src="/imagenes/icono_stars.png" alt="icono stars" /> Buscar con IA</button>
+//
+//                     <SessionButton saltarAUrl={saltarAUrl} 
+//                                    email={datosCliente?.cuenta.email || null} 
+//                                    icono={ datosCliente?.cuenta.imagenAvatar || null}/>
+//
+//                     <button className="btn btn-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvasCarrito" aria-controls="offCanvasCarrito">
+//                         <span className="position-relative me-1">
+//                           <i className="fa-solid fa-cart-shopping"></i>
+//                           {cantidadArticulos > 0 && <span className="badge rounded-pill text-bg-danger position-absolute top-0 start-100 translate-middle">{cantidadArticulos}</span>}
+//                         </span>
+//                         Mi Cesta
+//                     </button>
+//                 </div>
+//                 
+//             </div>
+//         </div>
+//
+//         {/* .... fila opcional para mostrar links q ha usado el usuario u ofertas relevantes...paso de hacerlo  */}
+//         <OffCanvasCarrito />
+//     </div>
+//     )
+// }
+//
+// export default Header
+//

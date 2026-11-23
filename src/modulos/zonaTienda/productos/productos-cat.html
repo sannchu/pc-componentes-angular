@@ -1,0 +1,17 @@
+<div class="d-flex flex-column justify-content-center align-items-center">
+  @if (!pathCat()) {
+    <div class="text-muted">Selecciona una categoría para ver sus productos.</div>
+  } @else if (cargando()) {
+    <div class="d-flex flex-column justify-content-center align-items-center">Cargando...</div>
+  } @else if (error()) {
+    <div class="d-flex flex-column justify-content-center align-items-center">Error: {{ error() }}</div>
+  } @else if (productos().length === 0) {
+    <div class="text-muted">No hay productos en esta categoría</div>
+  } @else {
+    <div class="productos-cat-grid">
+      @for (producto of productos(); track producto._id) {
+        <div class="producto-cat-item"><app-mini-producto [producto]="producto" /></div>
+      }
+    </div>
+  }
+</div>

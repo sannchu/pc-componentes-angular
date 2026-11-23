@@ -1,0 +1,7 @@
+.subcategory-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem .55rem; border: 0; border-radius: .35rem; background: #fff; text-align: left; }
+.subcategory-row:hover { color: #e55600; background: #fff7f1; }
+.chevron { transition: transform .18s ease; }
+.subcategory-row[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+.third-level-list { display: grid; gap: .2rem; padding: .3rem 0 .5rem .8rem; margin: 0; list-style: none; }
+.third-level-item { display: block; width: 100%; padding: .6rem .7rem; border: 0; border-radius: .35rem; background: #f7f7f7; text-align: left; }
+button.third-level-item:hover { background: #fff0e5; color: #e55600; }

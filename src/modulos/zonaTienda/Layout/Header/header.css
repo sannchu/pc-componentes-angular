@@ -1,0 +1,4 @@
+.header-actions { gap: .45rem; }
+.ai-button { white-space: nowrap; }
+.ai-button img { width: auto; height: 20px; margin-right: .25rem; vertical-align: middle; }
+@media (max-width: 991.98px) { .header-actions { flex-wrap: wrap; } }

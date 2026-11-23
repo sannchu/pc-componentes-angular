@@ -1,0 +1,22 @@
+<li class="subcategory-group">
+  <button class="subcategory-row" type="button" [attr.aria-expanded]="abierta" (click)="alternar.emit()">
+    {{ subcategoria.nombre }} <span class="chevron" aria-hidden="true">⌄</span>
+  </button>
+  @if (abierta) {
+    <ul class="third-level-list">
+      @if (cargando()) {
+        <li><span class="third-level-item muted">Cargando…</span></li>
+      } @else if (subcategorias().length === 0) {
+        <li><span class="third-level-item muted">No hay subcategorías</span></li>
+      } @else {
+        @for (categoria of subcategorias(); track categoria._id) {
+          <li>
+            <button class="third-level-item" type="button" (click)="seleccionar.emit(categoria.pathCat)">
+              {{ categoria.nombre }}
+            </button>
+          </li>
+        }
+      }
+    </ul>
+  }
+</li>

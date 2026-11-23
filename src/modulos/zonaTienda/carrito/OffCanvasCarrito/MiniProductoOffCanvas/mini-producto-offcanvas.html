@@ -1,0 +1,37 @@
+<div class="card mb-3 mini-producto-offcanvas">
+  <div class="row g-0 align-items-center">
+    <div class="col-4">
+      @if (item.producto.imagenProducto || item.producto.imagenes?.[0]) {
+        <img
+          [src]="item.producto.imagenProducto || item.producto.imagenes?.[0]"
+          class="img-fluid rounded-start mini-producto-offcanvas-imagen"
+          [alt]="item.producto.nombre"
+        />
+      } @else {
+        <div class="mini-producto-offcanvas-sin-imagen" aria-hidden="true"></div>
+      }
+    </div>
+    <div class="col-8">
+      <div class="card-body py-2">
+        <div class="row align-items-start g-1">
+          <div class="col-9">
+            <h5 class="card-title mini-producto-offcanvas-nombre">{{ item.producto.nombre || 'Producto' }}</h5>
+            <p class="card-text mb-1"><strong>{{ item.producto.precio | number:'1.2-2' }} €</strong></p>
+            <p class="card-text mb-0"><small class="text-body-secondary">Unidades: {{ item.cantidad }}</small></p>
+          </div>
+          <div class="col-3 text-end">
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              (click)="eliminar()"
+              [attr.aria-label]="'Eliminar ' + item.producto.nombre + ' de la cesta'"
+              title="Eliminar de la cesta"
+            >
+              <i class="bi bi-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

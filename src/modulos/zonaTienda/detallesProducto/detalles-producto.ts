@@ -1,0 +1,536 @@
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { StoreGlobal } from '../../_shared_/controllers/services/store-global';
+import { TiendaApiService } from '../_shared_/controllers/services/tienda-api.service';
+import type { Producto } from '../_shared_/models/Producto';
+
+type PestanaProducto = 'descripcion' | 'especificaciones' | 'opiniones' | 'preguntas';
+
+@Component({
+  selector: 'app-detalles-producto',
+  standalone: true,
+  imports: [CurrencyPipe, RouterLink],
+  templateUrl: './detalles-producto.html',
+  styleUrl: './detalles-producto.css',
+})
+export class DetallesProducto {
+  readonly producto = signal<Producto | null>(null);
+  readonly cargando = signal(true);
+  readonly error = signal('');
+  readonly indiceImagen = signal(0);
+  readonly modalImagenAbierto = signal(false);
+  readonly productoAgregado = signal(false);
+  readonly pestanaActiva = signal<PestanaProducto>('descripcion');
+  readonly estrellas = [1, 2, 3, 4, 5];
+
+  private readonly tiendaApi = inject(TiendaApiService);
+  private readonly store = inject(StoreGlobal);
+  private solicitud = 0;
+
+  constructor(route: ActivatedRoute, destroyRef: DestroyRef) {
+    route.paramMap.pipe(takeUntilDestroyed(destroyRef)).subscribe((params) => {
+      const idProducto = params.get('idProducto');
+      if (idProducto) void this.cargarProducto(idProducto);
+    });
+  }
+
+  private async cargarProducto(idProducto: string): Promise<void> {
+    const solicitudActual = ++this.solicitud;
+    this.cargando.set(true);
+    this.error.set('');
+    this.productoAgregado.set(false);
+    try {
+      const producto = await this.tiendaApi.getProducto(idProducto);
+      if (solicitudActual === this.solicitud) {
+        this.producto.set(producto);
+        if (!producto) this.error.set('No se encontró el producto solicitado.');
+      }
+    } catch (error) {
+      if (solicitudActual === this.solicitud) {
+        this.error.set(error instanceof Error ? error.message : 'No se pudo cargar el producto.');
+        this.producto.set(null);
+      }
+    } finally {
+      if (solicitudActual === this.solicitud) this.cargando.set(false);
+    }
+  }
+
+  get imagenes(): string[] { return this.producto()?.imagenes ?? []; }
+  get opiniones() { return this.producto()?.opiniones ?? []; }
+  get preguntas() { return this.producto()?.preguntas ?? []; }
+  get especificaciones(): [string, unknown][] { return Object.entries(this.producto()?.especificaciones ?? {}); }
+  get valoracionMedia(): number { return this.producto()?.valoracionMedia ?? 0; }
+  get precioPartes(): [string, string] { return (this.producto()?.precio ?? 0).toFixed(2).split('.') as [string, string]; }
+  get numeroOpiniones(): number { return this.producto()?.numeroOpiniones ?? this.opiniones.length; }
+  get porcentajeEstrellas(): number { return Math.max(0, Math.min(5, Math.round(this.valoracionMedia))); }
+  estrellasOpinion(valor?: number): string { return '★'.repeat(Math.max(0, Math.min(5, Math.round(valor || 0)))); }
+
+  seleccionarImagen(indice: number): void {
+    if (!this.imagenes.length) return;
+    this.indiceImagen.set((indice + this.imagenes.length) % this.imagenes.length);
+  }
+
+  cambiarImagen(delta: number): void { this.seleccionarImagen(this.indiceImagen() + delta); }
+
+  abrirPestana(pestana: PestanaProducto): void {
+    this.pestanaActiva.set(pestana);
+    document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  agregarAlCarrito(): void {
+    const producto = this.producto();
+    if (!producto || !producto._id || Number(producto.precio) <= 0) return;
+    this.store.setCarrito('agregar', {
+      producto: {
+        _id: String(producto._id),
+        nombre: producto.nombre,
+        precio: Number(producto.precio),
+        imagenProducto: this.imagenes[this.indiceImagen()] || '',
+        imagenes: this.imagenes,
+        descuentoPrecio: Math.max(0, Number(producto.descuento?.precioOriginal ?? producto.precio) - Number(producto.precio)),
+      },
+      cantidad: 1,
+    });
+    this.productoAgregado.set(true);
+  }
+
+  fechaCorta(fecha: string | number | Date | undefined): string {
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('es-ES');
+  }
+}
+
+
+// Código React original conservado como referencia y totalmente comentado.
+// Origen: loaders\GetProducto.Loader.js
+// import {
+//   getProductoApiUrl,
+//   productoCacheHitContext,
+//   productosCacheContext,
+// } from '../middlewares/routerContext.js'
+//
+// export default async function GetProductoLoader ({ params, context }) {
+//   const urlProducto = getProductoApiUrl(params.idProducto)
+//   const productosCache = context.get(productosCacheContext)
+//
+//   if (context.get(productoCacheHitContext)) {
+//     console.log('===> producto recuperado de la cache:', urlProducto)
+//     return productosCache.get(urlProducto)
+//   }
+//
+//   console.log('===> ejecutando fetch para obtener el producto:', urlProducto)
+//   const petFetchProducto = await fetch(urlProducto)
+//   const { codigo, mensaje, datos } = await petFetchProducto.json()
+//
+//   if (codigo !== 0) {
+//     console.error('===> error al recuperar el producto:', mensaje)
+//     return null
+//   }
+//
+//   productosCache.set(urlProducto, datos.producto)
+//   console.log('===> producto guardado en la cache:', urlProducto)
+//   return datos.producto
+// }
+
+
+// Código React original conservado como referencia y totalmente comentado.
+// Origen: componentes\zonaTienda\DetallesProducto\DetallesProducto.jsx
+// import './DetallesProducto.css'
+// import { useState,useEffect, useCallback } from 'react'
+// import { useParams, useLoaderData } from 'react-router'
+// import useStore from '../../../stateGlobal/zustandStateSlices.js'
+//
+// export default function DetallesProducto() {
+//     // const { idProducto } = useParams()
+//     // const [producto, setProducto] = useState(null)
+//     const producto = useLoaderData() // <---- hook de react-router para obtener los datos devueltos por el loader de la ruta
+//     const setCarrito = useStore(state => state.setCarrito)
+//     const [imagenSeleccionada, setImagenSeleccionada] = useState(0);
+//     const [productoAgregado, setProductoAgregado] = useState(false)
+//
+//     //meto en cache la funcion q va a pedir los detalles del producto, se conserva en memoria y no se vuelve a crear en cada renderizado
+//     // del componente, a no ser que cambie el valor de idProducto, q es la dependencia de useCallback()
+//
+//     //-------------------- esto no funciona -------------------------------------
+//     // const fetchProducto = useCallback(async () => {
+//     //     try {
+//     //         const response = await fetch(`http://localhost:3000/api/Tienda/Producto/${idProducto}`)
+//     //         const {codigo, mensaje, datos } = await response.json();
+//     //         if(codigo !==0) throw new Error(mensaje);
+//     //         setProducto(datos.producto);
+//     //     } catch (error) {
+//     //         console.error(`Error al obtener los detalles del producto: ${error.message}`);
+//     //         setProducto(null); // Establecer producto como null en caso de error
+//     //     }
+//
+//     // }, [idProducto]);
+//
+//     //efecto para ejecutar la funcion fetchProducto() cuando se renderiza el componente y cuando cambia el valor de idProducto
+//     // useEffect(() => {
+//     //     fetchProducto();
+//     // }, [fetchProducto]);
+//     // -------------------------------------------------------------------------------
+//
+//     // useEffect(
+//     //     () => {
+//     //         async function fetchProducto() {
+//     //             try {
+//     //                 const response = await fetch(`http://localhost:3000/api/Tienda/Producto/${idProducto}`)
+//     //                 const {codigo, mensaje, datos } = await response.json();
+//     //                 if(codigo !==0) throw new Error(mensaje);
+//
+//     //                 setProducto(datos.producto);
+//
+//     //             } catch (error) {
+//     //                 console.error(`Error al obtener los detalles del producto: ${error.message}`);
+//     //                 setProducto(null); // Establecer producto como null en caso de error
+//     //             }
+//     //         }
+//
+//     //         fetchProducto();
+//
+//     //     },[ idProducto ]
+//     // )
+//
+//     //-------------------- variables no reactivas, no estan en el state y derivan del producto ------
+//     if(!producto) return <p>Cargando detalles del producto...</p>
+//
+//     const imagenes = producto.imagenes || []; // Usar un array vacío si producto o producto.imagenes es undefined
+//     const totalImagenes = imagenes.length;
+//     const [euros, centimos] = (producto.precio ?? 0).toFixed(2).split('.');
+//     const estrellasMedia = Math.round(producto.valoracionMedia ?? 0);
+//
+//     const verAnterior = () => setImagenSeleccionada((indice) => (indice - 1 + totalImagenes) % totalImagenes);
+//     const verSiguiente = () => setImagenSeleccionada((indice) => (indice + 1) % totalImagenes);
+//
+//     const abrirPestana = (idPestana) => {
+//         const pestana = document.getElementById(idPestana);
+//         window.bootstrap.Tab.getOrCreateInstance(pestana).show();
+//         pestana.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//     };
+//
+//     function agregarAlCarrito() {
+//         const precio = Number(producto.precio) || 0
+//         const precioOriginal = Number(producto.descuento?.precioOriginal) || precio
+//
+//         if (!producto._id || precio <= 0) return
+//
+//         setCarrito('agregar', {
+//             producto: {
+//                 _id: producto._id?.toString?.() || producto._id,
+//                 nombre: producto.nombre,
+//                 imagenProducto: imagenes[imagenSeleccionada] || '',
+//                 imagenes,
+//                 precio,
+//                 descuentoPrecio: Math.max(0, precioOriginal - precio),
+//             },
+//             cantidad: 1,
+//         })
+//         setProductoAgregado(true)
+//     }
+//
+//
+//
+//
+//     return (
+//             <>
+//                 {
+//                     producto ?
+//                         <main className="container-xxl py-4 detalle-producto">
+//                             <nav aria-label="breadcrumb" className="mb-3">
+//                                 <ol className="breadcrumb small mb-0">
+//                                     <li className="breadcrumb-item"><a href="/" className="text-decoration-none">Inicio</a></li>
+//                                     {producto.marca && <li className="breadcrumb-item">{producto.marca}</li>}
+//                                     <li className="breadcrumb-item active text-truncate" aria-current="page">{producto.nombre}</li>
+//                                 </ol>
+//                             </nav>
+//
+//                             <section className="row g-4 align-items-start">
+//                                 {/* 1ª columna: galería (imagen grande + miniaturas) */}
+//                                 <div className="col-12 col-lg-5">
+//                                     {producto.imagenes && producto.imagenes.length > 0 ? (
+//                                         <>
+//                                             <button
+//                                                 type="button"
+//                                                 className="btn p-0 border-0 w-100 bg-white detalle-producto__imagen-principal"
+//                                                 data-bs-toggle="modal"
+//                                                 data-bs-target="#modalImagenProducto"
+//                                                 aria-label="Ampliar imagen"
+//                                             >
+//                                                 <img src={producto.imagenes[imagenSeleccionada]} alt={producto.nombre} className="img-fluid" />
+//                                             </button>
+//                                             <div className="d-flex gap-2 mt-3 overflow-x-auto pb-1">
+//                                                 {producto.imagenes.map((imagen, indice) => (
+//                                                     <button
+//                                                         key={indice}
+//                                                         type="button"
+//                                                         className={`btn p-1 flex-shrink-0 detalle-producto__miniatura ${indice === imagenSeleccionada ? 'detalle-producto__miniatura--activa' : ''}`}
+//                                                         onClick={() => setImagenSeleccionada(indice)}
+//                                                         aria-label={`Ver imagen ${indice + 1}`}
+//                                                         aria-current={indice === imagenSeleccionada}
+//                                                     >
+//                                                         <img src={imagen} alt="" />
+//                                                     </button>
+//                                                 ))}
+//                                             </div>
+//                                         </>
+//                                     ) : (
+//                                         <div className="text-center text-muted border rounded py-5">Sin imágenes disponibles</div>
+//                                     )}
+//                                 </div>
+//
+//                                 {/* 2ª columna: título, valoración y lo más destacado */}
+//                                 <div className="col-12 col-md-7 col-lg-4">
+//                                     <h1 className="h4 fw-bold mb-2">{producto.nombre}</h1>
+//                                     <div className="d-flex flex-wrap align-items-center gap-3 small mb-3">
+//                                         <span>
+//                                             <strong>{producto.valoracionMedia.toLocaleString('es-ES')}/5</strong>{' '}
+//                                             <i className="bi bi-star-fill detalle-producto__estrella" aria-hidden="true" />
+//                                         </span>
+//                                         <button type="button" className="btn btn-link btn-sm p-0 text-dark" onClick={() => abrirPestana('tab-opiniones')}>
+//                                             {producto.numeroOpiniones} opiniones
+//                                         </button>
+//                                         <button type="button" className="btn btn-link btn-sm p-0 text-dark text-decoration-none" onClick={() => abrirPestana('tab-preguntas')}>
+//                                             Preguntas (<span className="text-decoration-underline">{producto.preguntas.length}</span>)
+//                                         </button>
+//                                     </div>
+//
+//                                     <p className="small text-muted mb-3">
+//                                         {producto.marca && <>Marca: <strong className="text-dark">{producto.marca}</strong> &middot; </>}
+//                                         Cód. artículo: {producto.sku}
+//                                         {producto.partNumber && <> &middot; P/N: {producto.partNumber}</>}
+//                                     </p>
+//
+//                                     <div className="border rounded p-3 d-flex align-items-center gap-3 mb-3">
+//                                         <i className="bi bi-arrow-repeat fs-4 detalle-producto__naranja" aria-hidden="true" />
+//                                         <div className="small flex-grow-1">
+//                                             <strong className="d-block">Ahorra con el plan renove</strong>
+//                                             Entrega tu antiguo dispositivo y ¡gana dinero!
+//                                         </div>
+//                                         <i className="bi bi-chevron-right" aria-hidden="true" />
+//                                     </div>
+//
+//                                     {producto.caracteristicas.length > 0 && (
+//                                         <div className="bg-body-tertiary rounded p-4">
+//                                             <h2 className="h6 fw-bold mb-2">Lo más destacado</h2>
+//                                             <ul className="small mb-0 d-grid gap-2">
+//                                                 {producto.caracteristicas.map((caracteristica) => <li key={caracteristica}>{caracteristica}</li>)}
+//                                             </ul>
+//                                         </div>
+//                                     )}
+//                                 </div>
+//
+//                                 {/* 3ª columna: precio y compra */}
+//                                 <div className="col-12 col-md-5 col-lg-3">
+//                                     <div className="card shadow-sm">
+//                                         <div className="card-body p-4">
+//                                             {producto.descuento.tieneDescuento && (
+//                                                 <div className="d-flex flex-wrap align-items-center gap-2 mb-1 small">
+//                                                     <span className="badge detalle-producto__badge-descuento">-{producto.descuento.porcentaje}%</span>
+//                                                     <span className="text-muted text-decoration-line-through">
+//                                                         {producto.descuento.precioOriginal?.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+//                                                     </span>
+//                                                     {producto.descuento.etiqueta && <span className="badge text-bg-dark">{producto.descuento.etiqueta}</span>}
+//                                                 </div>
+//                                             )}
+//                                             <p className="mb-3 fw-bold detalle-producto__precio">
+//                                                 <span className="detalle-producto__precio-euros">{euros}</span>
+//                                                 <sup className="fs-6">{centimos}€</sup>
+//                                             </p>
+//
+//                                             <div className="d-flex align-items-center justify-content-between small px-3 py-2 mb-3 detalle-producto__financiacion">
+//                                                 <span>Financiación disponible</span>
+//                                                 <i className="bi bi-chevron-right" aria-hidden="true" />
+//                                             </div>
+//
+//                                             <ul className="list-unstyled small mb-3 d-grid gap-3">
+//                                                 <li className="d-flex gap-3">
+//                                                     <i className="bi bi-truck fs-5" aria-hidden="true" />
+//                                                     <div>
+//                                                         Envío: <strong>Gratis</strong> | Devolución: <strong>Gratis</strong>
+//                                                         {producto.disponible
+//                                                             ? <strong className="d-block text-success">Recíbelo mañana</strong>
+//                                                             : <strong className="d-block text-danger">Sin stock</strong>}
+//                                                     </div>
+//                                                 </li>
+//                                                 <li className="d-flex gap-3">
+//                                                     <i className="bi bi-shop fs-5" aria-hidden="true" />
+//                                                     <span>Ver disponibilidad en tienda</span>
+//                                                 </li>
+//                                             </ul>
+//
+//                                             <button type="button" className="btn btn-lg w-100 detalle-producto__btn-carrito" onClick={agregarAlCarrito}>
+//                                                 {productoAgregado ? 'Añadido a la cesta' : 'Añadir al carrito'}
+//                                             </button>
+//
+//                                             <div className="d-flex align-items-center gap-2 small mt-3 pb-3 border-bottom">
+//                                                 <i className="bi bi-award fs-5" aria-hidden="true" />
+//                                                 <span className="flex-grow-1">Garantía de Solución en 24h</span>
+//                                                 <strong>Gratis</strong>
+//                                             </div>
+//                                             <div className="d-flex align-items-center gap-2 small pt-3">
+//                                                 <i className="bi bi-box-seam-fill detalle-producto__naranja" aria-hidden="true" />
+//                                                 <span>Vendido y enviado por <strong>PcComponentes</strong></span>
+//                                             </div>
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             </section>
+//
+//                             {/* Pestañas: descripción, especificaciones, opiniones y preguntas */}
+//                             <section className="mt-5">
+//                                 <ul className="nav nav-tabs" role="tablist">
+//                                     <li className="nav-item" role="presentation">
+//                                         <button className="nav-link active" id="tab-descripcion" data-bs-toggle="tab" data-bs-target="#panel-descripcion" type="button" role="tab" aria-controls="panel-descripcion" aria-selected="true">Descripción</button>
+//                                     </li>
+//                                     <li className="nav-item" role="presentation">
+//                                         <button className="nav-link" id="tab-especificaciones" data-bs-toggle="tab" data-bs-target="#panel-especificaciones" type="button" role="tab" aria-controls="panel-especificaciones" aria-selected="false">Especificaciones</button>
+//                                     </li>
+//                                     <li className="nav-item" role="presentation">
+//                                         <button className="nav-link" id="tab-opiniones" data-bs-toggle="tab" data-bs-target="#panel-opiniones" type="button" role="tab" aria-controls="panel-opiniones" aria-selected="false">Opiniones ({producto.numeroOpiniones})</button>
+//                                     </li>
+//                                     <li className="nav-item" role="presentation">
+//                                         <button className="nav-link" id="tab-preguntas" data-bs-toggle="tab" data-bs-target="#panel-preguntas" type="button" role="tab" aria-controls="panel-preguntas" aria-selected="false">Preguntas ({producto.preguntas.length})</button>
+//                                     </li>
+//                                 </ul>
+//                                 <div className="tab-content border border-top-0 rounded-bottom p-4">
+//                                     {/* Descripción */}
+//                                     <div className="tab-pane fade show active" id="panel-descripcion" role="tabpanel" aria-labelledby="tab-descripcion">
+//                                         {producto.descripcion
+//                                             ? <p className="mb-0">{producto.descripcion}</p>
+//                                             : <p className="text-muted mb-0">Este producto no tiene descripción.</p>}
+//                                     </div>
+//
+//                                     {/* Especificaciones */}
+//                                     <div className="tab-pane fade" id="panel-especificaciones" role="tabpanel" aria-labelledby="tab-especificaciones">
+//                                         <table className="table table-striped align-middle mb-0">
+//                                             <tbody>
+//                                                 {Object.entries(producto.especificaciones).map(([clave, valor]) => (
+//                                                     <tr key={clave}>
+//                                                         <th scope="row" className="w-25 fw-semibold text-capitalize">{clave.replace(/([a-z])([A-Z])/g, '$1 $2')}</th>
+//                                                         <td>{String(valor)}</td>
+//                                                     </tr>
+//                                                 ))}
+//                                             </tbody>
+//                                         </table>
+//                                     </div>
+//
+//                                     {/* Opiniones */}
+//                                     <div className="tab-pane fade" id="panel-opiniones" role="tabpanel" aria-labelledby="tab-opiniones">
+//                                         <div className="d-flex align-items-center gap-3 mb-4">
+//                                             <span className="display-5 fw-bold">{producto.valoracionMedia.toLocaleString('es-ES')}</span>
+//                                             <div>
+//                                                 <div className="fs-5 detalle-producto__estrella">
+//                                                     {'★'.repeat(estrellasMedia)}{'☆'.repeat(5 - estrellasMedia)}
+//                                                 </div>
+//                                                 <div className="small text-muted">{producto.numeroOpiniones} opiniones</div>
+//                                             </div>
+//                                         </div>
+//                                         {producto.opiniones.length === 0 && <p className="text-muted mb-0">Todavía no hay opiniones de este producto.</p>}
+//                                         <div className="d-grid gap-3">
+//                                             {producto.opiniones.map((opinion) => (
+//                                                 <article key={opinion._id} className="border rounded p-3">
+//                                                     <header className="d-flex align-items-center gap-2 mb-2">
+//                                                         <img src={opinion.avatarUsuario} alt="" width="40" height="40" className="rounded-circle" />
+//                                                         <div>
+//                                                             <strong className="d-block">{opinion.nombreUsuario}</strong>
+//                                                             <small className="text-muted">{new Date(opinion.fecha).toLocaleDateString('es-ES')}</small>
+//                                                         </div>
+//                                                         <span className="ms-auto detalle-producto__estrella" aria-label={`Valoración ${opinion.valoracion} de 5`}>
+//                                                             {'★'.repeat(opinion.valoracion)}{'☆'.repeat(5 - opinion.valoracion)}
+//                                                         </span>
+//                                                     </header>
+//                                                     <p className="mb-2">{opinion.texto}</p>
+//                                                     <div className="row small g-2">
+//                                                         {opinion.pros.length > 0 && (
+//                                                             <div className="col-12 col-md-6">
+//                                                                 <strong className="text-success"><i className="bi bi-hand-thumbs-up" aria-hidden="true" /> Pros</strong>
+//                                                                 <ul className="mb-0">{opinion.pros.map((pro) => <li key={pro}>{pro}</li>)}</ul>
+//                                                             </div>
+//                                                         )}
+//                                                         {opinion.contras.length > 0 && (
+//                                                             <div className="col-12 col-md-6">
+//                                                                 <strong className="text-danger"><i className="bi bi-hand-thumbs-down" aria-hidden="true" /> Contras</strong>
+//                                                                 <ul className="mb-0">{opinion.contras.map((contra) => <li key={contra}>{contra}</li>)}</ul>
+//                                                             </div>
+//                                                         )}
+//                                                     </div>
+//                                                 </article>
+//                                             ))}
+//                                         </div>
+//                                     </div>
+//
+//                                     {/* Preguntas y respuestas */}
+//                                     <div className="tab-pane fade" id="panel-preguntas" role="tabpanel" aria-labelledby="tab-preguntas">
+//                                         {producto.preguntas.length === 0 && <p className="text-muted mb-0">Nadie ha preguntado todavía por este producto.</p>}
+//                                         <div className="d-grid gap-3">
+//                                             {producto.preguntas.map((pregunta) => (
+//                                                 <article key={pregunta._id} className="border rounded p-3">
+//                                                     <header className="d-flex align-items-center gap-2 mb-2">
+//                                                         <img src={pregunta.avatarUsuario} alt="" width="32" height="32" className="rounded-circle" />
+//                                                         <strong>{pregunta.nombreUsuario}</strong>
+//                                                         <small className="text-muted ms-auto">{new Date(pregunta.fecha).toLocaleDateString('es-ES')}</small>
+//                                                     </header>
+//                                                     <p className="fw-semibold mb-2">{pregunta.texto}</p>
+//                                                     {pregunta.respuestas?.length > 0 ? (
+//                                                         <ul className="list-unstyled ms-4 mb-0 d-grid gap-2">
+//                                                             {pregunta.respuestas.map((respuesta, indice) => (
+//                                                                 <li key={indice} className="bg-body-tertiary rounded p-2 small">
+//                                                                     <strong>{respuesta.nombreUsuario}</strong>
+//                                                                     <span className="text-muted"> &middot; {new Date(respuesta.fecha).toLocaleDateString('es-ES')}</span>
+//                                                                     <p className="mb-0 mt-1">{respuesta.texto}</p>
+//                                                                 </li>
+//                                                             ))}
+//                                                         </ul>
+//                                                     ) : (
+//                                                         <p className="small text-muted ms-4 mb-0">Sin respuestas todavía.</p>
+//                                                     )}
+//                                                 </article>
+//                                             ))}
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             </section>
+//
+//                             {/* Modal: imagen ampliada */}
+//                             {totalImagenes > 0 && (
+//                                 <div className="modal fade" id="modalImagenProducto" tabIndex="-1" aria-labelledby="modalImagenProductoTitulo" aria-hidden="true">
+//                                     <div className="modal-dialog modal-xl modal-dialog-centered">
+//                                         <div className="modal-content">
+//                                             <div className="modal-header border-0">
+//                                                 <h2 className="modal-title h6 text-truncate" id="modalImagenProductoTitulo">{producto.nombre}</h2>
+//                                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" />
+//                                             </div>
+//                                             <div className="modal-body text-center position-relative">
+//                                                 <img src={imagenes[imagenSeleccionada]} alt={producto.nombre} className="img-fluid detalle-producto__imagen-ampliada" />
+//                                                 {totalImagenes > 1 && (
+//                                                     <>
+//                                                         <button type="button" className="btn btn-light rounded-circle shadow position-absolute top-50 start-0 translate-middle-y ms-3" onClick={verAnterior} aria-label="Imagen anterior">
+//                                                             <i className="bi bi-chevron-left" aria-hidden="true" />
+//                                                         </button>
+//                                                         <button type="button" className="btn btn-light rounded-circle shadow position-absolute top-50 end-0 translate-middle-y me-3" onClick={verSiguiente} aria-label="Imagen siguiente">
+//                                                             <i className="bi bi-chevron-right" aria-hidden="true" />
+//                                                         </button>
+//                                                     </>
+//                                                 )}
+//                                             </div>
+//                                             <div className="modal-footer border-0 justify-content-center">
+//                                                 <span className="small text-muted">{imagenSeleccionada + 1} / {totalImagenes}</span>
+//                                             </div>
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             )}
+//                         </main>
+//                     :
+//                         <p>No existen datos del producto para es id...</p>
+//
+//                 }
+//
+//             </>
+//     )
+// }
+//

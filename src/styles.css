@@ -1,0 +1,34 @@
+:root {
+  color-scheme: light;
+  font-family: var(--bs-body-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  color: var(--bs-body-color, #212529);
+  background: var(--bs-body-bg, #fff);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body { min-width: 320px; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+img { max-width: 100%; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.page-shell { width: min(100% - 2rem, 1440px); margin: 0 auto; }
+.icon-button { display: inline-grid; place-items: center; border: 0; background: transparent; color: inherit; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid #d7d7d7; border-radius: .35rem; background: #fff; color: #252525; font-weight: 600; text-decoration: none; transition: background .15s ease, border-color .15s ease, color .15s ease; }
+.button:hover { border-color: #ff6000; }
+.button-primary { border-color: #ff6000; background: #ff6000; color: #fff; }
+.button-primary:hover { border-color: #e55600; background: #e55600; }
+.button-quiet { border-color: transparent; }
+.button:disabled { opacity: .55; cursor: not-allowed; }
+.surface { border: 1px solid #e7e7e7; border-radius: .65rem; background: #fff; }
+.muted { color: #707070; }
+.error-message { padding: .8rem 1rem; border: 1px solid #f3b5b5; border-radius: .4rem; background: #fff0f0; color: #9b1c1c; }
+.loading-message { padding: 3rem 1rem; color: #666; text-align: center; }
+
+@media (max-width: 620px) {
+  .page-shell { width: min(100% - 1.25rem, 1440px); }
+}

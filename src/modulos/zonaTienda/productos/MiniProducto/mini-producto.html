@@ -1,0 +1,57 @@
+<div class="card" style="width: 18rem" (click)="verDetalle($event)">
+  <div class="carousel slide" [id]="'carouselProducto-' + producto._id">
+    @if (imagenes.length > 0) {
+      <div class="carousel-indicators">
+        @for (imagen of imagenes; track $index; let indice = $index) {
+          <button
+            type="button"
+            [attr.data-bs-target]="'#carouselProducto-' + producto._id"
+            [attr.data-bs-slide-to]="indice"
+            [class.active]="indice === 0"
+            [attr.aria-current]="indice === 0 ? 'true' : 'false'"
+            [attr.aria-label]="'Slide ' + (indice + 1)"
+          ></button>
+        }
+      </div>
+      <div class="carousel-inner">
+        @for (imagen of imagenes; track $index; let indice = $index) {
+          <div class="carousel-item" [class.active]="indice === 0">
+            <img [src]="imagen" class="d-block w-100" [alt]="'Imagen ' + (indice + 1)" />
+          </div>
+        }
+      </div>
+      @if (imagenes.length > 1) {
+        <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carouselProducto-' + producto._id" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carouselProducto-' + producto._id" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Siguiente</span>
+        </button>
+      }
+    } @else {
+      <div class="bg-body-tertiary d-flex align-items-center justify-content-center" style="height: 15rem">Sin imagen</div>
+    }
+  </div>
+
+  <div class="card-body">
+    <h5 class="card-title">{{ producto.nombre }}</h5>
+    @if (producto.descuento?.tieneDescuento) {
+      <p class="card-text">
+        <strong><span style="color: red">{{ precioActual().toFixed(2) }} €</span></strong>
+        <small> PVPR <span style="text-decoration: line-through">{{ producto.precio.toFixed(2) }} €</span></small>
+      </p>
+    } @else {
+      <p class="card-text"><strong>{{ producto.precio.toFixed(2) }} €</strong></p>
+    }
+
+    <p class="card-text">
+      @for (estrella of estrellas; track estrella) {
+        <i class="fa-solid fa-star" [style.color]="estrella <= calificacion() ? '#ffc107' : '#6c757d'"></i>
+      }
+      ( {{ producto.numeroOpiniones ?? producto.opiniones?.length ?? 0 }} )
+    </p>
+    <p class="card-text">Vendido por <strong>{{ producto.vendedor || 'PcComponentes' }}</strong></p>
+  </div>
+</div>

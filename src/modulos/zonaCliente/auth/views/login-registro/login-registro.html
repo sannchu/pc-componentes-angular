@@ -1,0 +1,81 @@
+<div class="container auth-page">
+  <div class="row">
+    <div class="col-12 d-flex flex-row align-items-center justify-content-center">
+      <a routerLink="/" aria-label="Volver a la página principal">
+        <img src="/imagenes/logo_pccomponentes.png" alt="logo" class="logo" />
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <img src="/imagenes/loginRegistro_info.png" alt="loginRegistro_info" style="width: 500px; height: 500px" />
+    </div>
+
+    <div class="col-6">
+      <div class="container">
+        <div class="row"><div class="col"><h4><strong>{{ titulo() }}</strong></h4></div></div>
+        <div class="row m-3">
+          <div class="col d-grid gap-1">
+            <button type="button" id="btnlogingmail" class="btn btn-light btn-sm" (click)="iniciarSesionGoogle()" [disabled]="enviando()">
+              <img src="/imagenes/boton_login_GMAIL.png" alt="Continuar con Google" />
+            </button>
+          </div>
+        </div>
+
+        <div class="row m-3">
+          <div class="col">
+            @if (error()) { <div class="alert alert-danger" role="alert">{{ error() }}</div> }
+            @if (mensaje()) { <div class="alert alert-success" role="status">{{ mensaje() }}</div> }
+          </div>
+        </div>
+
+        <div class="row"><div class="col m-4"><h6><span>O bien</span></h6></div></div>
+
+        <form class="row" (ngSubmit)="enviar()" #authForm="ngForm" novalidate>
+          <div class="col-12">
+            @for (caja of cajasVisibles(); track caja.id) {
+              <div class="form-floating m-4">
+                <input [type]="caja.type" [id]="caja.id" [name]="caja.id" class="form-control" [placeholder]="caja.placeholder" [(ngModel)]="formData[caja.id]" required />
+                <label class="form-label" [for]="caja.id">{{ caja.placeholder }}</label>
+              </div>
+            }
+            @if (!enLogin()) {
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" name="privacidad" />
+                <label class="form-check-label" for="flexCheckDefault">He leído y acepto la <a href="#privacidad">política de privacidad</a></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="flexCheckChecked" name="novedades" />
+                <label class="form-check-label" for="flexCheckChecked">Recibir <strong>descuentos exclusivos</strong>, novedades y tendencias por e-mail. Me puedo dar de baja desde mi panel.</label>
+              </div>
+            }
+          </div>
+
+          <!--
+            div para renderizar por código el widget de reCaptcha
+            para referenciarlo en el código del componente uso una variable "template" de angular (apunta a dicho elemento del DOM)
+            https://angular.dev/guide/templates/variables
+          -->
+          <div #recaptchaContainer id="recaptcha-container"></div>
+
+          <div class="col-12 d-grid gap-1 mt-4 mb-4">
+            <button type="submit" class="btn pccomponentes-primary" [disabled]="enviando() || !authForm.valid">
+              {{ textoBotonEnvio() }}
+            </button>
+          </div>
+        </form>
+
+        <hr />
+        <div class="row"><div class="col m-4"><h6><span>{{ textoPregunta() }}</span></h6></div></div>
+        <div class="row">
+          <div class="col d-grid gap-1">
+            <button type="button" class="btn btn-outline-secondary" (click)="cambiarModo()">
+              {{ textoBotonCambio() }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

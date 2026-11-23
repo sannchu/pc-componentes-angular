@@ -1,0 +1,32 @@
+@if (abierto()) {
+  <div class="cart-backdrop" (click)="close()" (keydown.escape)="close()"></div>
+  <aside class="offcanvas offcanvas-end show offcanvas-carrito cart-drawer" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <header class="offcanvas-header cart-header">
+      <h2 class="offcanvas-title" id="cart-title">Mi Cesta <span>({{ store.cantidadArticulos() }})</span></h2>
+      <button class="btn-close" type="button" (click)="close()" aria-label="Cerrar cesta"></button>
+    </header>
+    <hr />
+    <div class="offcanvas-body cart-body">
+      @if (store.carrito().itemsPedido.length > 0) {
+        <div class="cart-items">
+          @for (item of store.carrito().itemsPedido; track item.producto._id) {
+            <app-mini-producto-offcanvas [item]="item" />
+          }
+        </div>
+        <section class="cart-summary" aria-label="Resumen de compra">
+          <p><span>Subtotal</span><strong>{{ store.carrito().subtotal | currency:'EUR':'symbol':'1.2-2':'es-ES' }}</strong></p>
+          <p><span>Envío</span><strong>{{ store.carrito().gastosEnvio === 0 ? 'Gratis' : (store.carrito().gastosEnvio | currency:'EUR':'symbol':'1.2-2':'es-ES') }}</strong></p>
+          <p><span>IVA</span><strong>{{ store.carrito().iva | currency:'EUR':'symbol':'1.2-2':'es-ES' }}</strong></p>
+          <p class="cart-total"><span>Total</span><strong>{{ store.carrito().total | currency:'EUR':'symbol':'1.2-2':'es-ES' }}</strong></p>
+        </section>
+      } @else {
+        <div class="empty-cart d-flex flex-column justify-content-center align-items-center text-center h-100">
+          <h3>Tu carrito está vacío</h3>
+          <p class="mb-1">Explora multitud de artículos a buen precio</p>
+          <p>desde nuestra página principal</p>
+          <button class="btn btn-outline-primary" type="button" (click)="close()">Explora artículos</button>
+        </div>
+      }
+    </div>
+  </aside>
+}

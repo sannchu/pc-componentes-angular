@@ -1,0 +1,12 @@
+<div class="caja-texto">
+  <p>
+    Tipo: <strong>{{ tipo() }}</strong>
+    · Placeholder: <strong>{{ placeholder() }}</strong>
+  </p>
+
+  <input
+    [type]="tipo()"
+    [placeholder]="placeholder()"
+    (input)="changeInputText($event)"
+  />
+</div>
