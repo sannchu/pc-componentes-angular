@@ -1,37 +1,59 @@
-# PcComponentes Angular
+# PcCOMPONENTESAngular
 
-Migración del frontend React del workspace `pc-componentes` a Angular. La tienda mantiene zonas separadas para cliente y catálogo; las pantallas Angular están en `src/modulos`.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.7.
 
-## Iniciar el proyecto
+## Development server
 
-1. Inicia el backend Node del workspace React en `http://localhost:3000`.
-2. Desde esta carpeta ejecuta:
-
-   ```bash
-   npm install
-   npm start
-   ```
-
-3. Abre `http://localhost:4200`.
-
-La API de tienda y cliente se configura en `src/modulos/zonaTienda/_shared_/controllers/services/tienda-api.service.ts` y `src/modulos/zonaCliente/auth/controllers/cliente-auth.service.ts`.
-
-## Rutas
-
-- `/`: inicio dentro del layout de tienda.
-- `/Productos?pathCat=...`: productos de la categoría indicada.
-- `/DetallesProducto/:idProducto`: detalle y galería del producto.
-- `/Cliente/LoginRegistro`: acceso, registro y autenticación con Google.
-- `/comunicacion`: ejemplo Angular de comunicación entre componentes.
-
-El carrito y la sesión se comparten mediante `StoreGlobal`. Los productos consultados se conservan en una caché en memoria.
-
-## Código React conservado
-
-El JSX y JavaScript originales se han conservado al final de los archivos TypeScript equivalentes, línea a línea y comentados para que no se ejecuten ni interfieran con la compilación Angular.
-
-## Compilar
+To start a local development server, run:
 
 ```bash
-npm run build
+ng serve
 ```
+
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+## Code scaffolding
+
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+
+```bash
+ng generate component component-name
+```
+
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+
+```bash
+ng generate --help
+```
+
+## Building
+
+To build the project run:
+
+```bash
+ng build
+```
+
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

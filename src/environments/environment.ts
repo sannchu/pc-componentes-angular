@@ -1,3 +1,1 @@
-export const environment = {
-    recaptchaSiteKey: ''
-};
+export const environment = {};

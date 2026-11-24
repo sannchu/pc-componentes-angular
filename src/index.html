@@ -1,20 +1,35 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PcComponentes</title>
+
+    <!-- CDNs de BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>    
+
+    <!-- iconos de FontAwesome -->
+     <script src="https://kit.fontawesome.com/aed90cde08.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap icons --> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
+
+    <!-- enlace para descargar Google Fraud-Defend: reCaptcha 
+      crea dentro del objeto window de JS, un objeto "grecaptcha.enterprise" con metodos/props disponibles para:
+        - interactuar con la api de google reCaptcha  (generar token con resultado validacion, verificacion del token, etc...)
+        - incrustar el widget de reCaptcha en el DOM
+        - gestionar eventos y callbacks relacionados con la validación del reCaptcha
+        - ...
+    -->
+     <script src="https://www.google.com/recaptcha/enterprise.js?render=explicit" async defer></script>    
+
+
+
+  <title>PcCOMPONENTESAngular</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <meta name="theme-color" content="#ff6000">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script src="https://kit.fontawesome.com/aed90cde08.js" crossorigin="anonymous"></script>
-  <script src="https://www.google.com/recaptcha/enterprise.js?render=explicit"></script>
-
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-  <app-root></app-root>
+  <app-login-registro></app-login-registro>
 </body>
 </html>

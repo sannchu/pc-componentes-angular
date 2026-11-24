@@ -1,7 +1,9 @@
+import IFormLoginRegistro from './formModels/IFormLoginRegistro';
+
 export interface ICajaTexto {
-  placeholder: string;
-  type: string;
-  id: string;
-  enLogin: boolean;
-  enRegistro: boolean;
+    id: keyof IFormLoginRegistro; // solo ids que existen en el modelo del signal-form
+    type: string;
+    placeholder: string;
+    enLogin: boolean;
+    enRegistro: boolean;
 }

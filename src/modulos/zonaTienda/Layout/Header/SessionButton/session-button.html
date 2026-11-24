@@ -1,8 +1,0 @@
-<a class="btn btn-light btn-sm" routerLink="/Cliente/LoginRegistro">
-  @if (store.sesionIniciada() && store.datosCliente()?.cuenta?.imagenAvatar) {
-    <img [src]="store.datosCliente()?.cuenta?.imagenAvatar" alt="icono usuario" class="rounded-circle me-2" style="width: 30px; height: 30px" />
-  } @else {
-    <i class="fa-regular fa-user" aria-hidden="true"></i>
-  }
-  @if (store.sesionIniciada()) { {{ store.datosCliente()?.cuenta?.email }} } @else { Mi Cuenta }
-</a>

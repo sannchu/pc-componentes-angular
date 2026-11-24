@@ -1,81 +1,116 @@
-<div class="container auth-page">
-  <div class="row">
-    <div class="col-12 d-flex flex-row align-items-center justify-content-center">
-      <a routerLink="/" aria-label="Volver a la página principal">
-        <img src="/imagenes/logo_pccomponentes.png" alt="logo" class="logo" />
-      </a>
-    </div>
-  </div>
+<div class="container">
 
-  <div class="row">
-    <div class="col-6">
-      <img src="/imagenes/loginRegistro_info.png" alt="loginRegistro_info" style="width: 500px; height: 500px" />
-    </div>
-
-    <div class="col-6">
-      <div class="container">
-        <div class="row"><div class="col"><h4><strong>{{ titulo() }}</strong></h4></div></div>
-        <div class="row m-3">
-          <div class="col d-grid gap-1">
-            <button type="button" id="btnlogingmail" class="btn btn-light btn-sm" (click)="iniciarSesionGoogle()" [disabled]="enviando()">
-              <img src="/imagenes/boton_login_GMAIL.png" alt="Continuar con Google" />
-            </button>
-          </div>
+    <div class="row m-4">
+        <div class="col justify-content-center aling-items-center">
+            <!-- aqui iria componente _shared_ para mostrar icono de la tienda y link a pag.principal: <IconPc /> -->
         </div>
-
-        <div class="row m-3">
-          <div class="col">
-            @if (error()) { <div class="alert alert-danger" role="alert">{{ error() }}</div> }
-            @if (mensaje()) { <div class="alert alert-success" role="status">{{ mensaje() }}</div> }
-          </div>
-        </div>
-
-        <div class="row"><div class="col m-4"><h6><span>O bien</span></h6></div></div>
-
-        <form class="row" (ngSubmit)="enviar()" #authForm="ngForm" novalidate>
-          <div class="col-12">
-            @for (caja of cajasVisibles(); track caja.id) {
-              <div class="form-floating m-4">
-                <input [type]="caja.type" [id]="caja.id" [name]="caja.id" class="form-control" [placeholder]="caja.placeholder" [(ngModel)]="formData[caja.id]" required />
-                <label class="form-label" [for]="caja.id">{{ caja.placeholder }}</label>
-              </div>
-            }
-            @if (!enLogin()) {
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="flexCheckDefault" name="privacidad" />
-                <label class="form-check-label" for="flexCheckDefault">He leído y acepto la <a href="#privacidad">política de privacidad</a></label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="flexCheckChecked" name="novedades" />
-                <label class="form-check-label" for="flexCheckChecked">Recibir <strong>descuentos exclusivos</strong>, novedades y tendencias por e-mail. Me puedo dar de baja desde mi panel.</label>
-              </div>
-            }
-          </div>
-
-          <!--
-            div para renderizar por código el widget de reCaptcha
-            para referenciarlo en el código del componente uso una variable "template" de angular (apunta a dicho elemento del DOM)
-            https://angular.dev/guide/templates/variables
-          -->
-          <div #recaptchaContainer id="recaptcha-container"></div>
-
-          <div class="col-12 d-grid gap-1 mt-4 mb-4">
-            <button type="submit" class="btn pccomponentes-primary" [disabled]="enviando() || !authForm.valid">
-              {{ textoBotonEnvio() }}
-            </button>
-          </div>
-        </form>
-
-        <hr />
-        <div class="row"><div class="col m-4"><h6><span>{{ textoPregunta() }}</span></h6></div></div>
-        <div class="row">
-          <div class="col d-grid gap-1">
-            <button type="button" class="btn btn-outline-secondary" (click)="cambiarModo()">
-              {{ textoBotonCambio() }}
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+    <div class="row">
+        <div class="col-6"><img src="/imagenes/loginRegistro_info.png" class="img-fluid"/></div>
+        <div class="col-4">
+            <div class="container">
+                <!-- {
+                    error && <ErrorMessage message={error} />
+                } -->
+                <div class="row"><div class="col"><h4><strong>{{ enLogin() ? "Iniciar sesión" : "Crear cuenta" }}</strong></h4></div></div>
+                <div class="row m-3">
+                    <div class="col d-grid gap-1">
+                        <button type="button" id="btnlogingmail"  class="btn btn-light btn-sm" (click)="HandleLoginWithGoogle()">
+                            <img  src="/imagenes/boton_login_GMAIL.png"/>
+                        </button>
+                    </div>
+                </div>
+                <div class="row"><div class="col m-4 d-flex flex-row align-items-center justify-content-center"><h6><span> O bien </span></h6></div></div>
+                
+                <div class="row">
+                    <div class="col">
+                        @for(caja of cajasTexto.filter( caja => caja.enLogin === enLogin() || (caja.enLogin===true && caja.enRegistro === true)); track caja.id)
+                        { 
+                            <div class="form-floating mb-3">
+                                <input class="form-control"
+                                        [type]="caja.type"
+                                        [id]="caja.id"
+                                        [placeholder]="caja.placeholder"
+                                        [formField]="formLoginRegistro[caja.id]"
+                                        (change)="ChangeFormData(caja.id, $event.target.value)"
+                                    />
+                                <label [for]="caja.id">{{ caja.placeholder }}</label>
+                            </div>
+                        }
+                            <!-- cajasTexto.filter( caja => caja.enLogin === enLogin || (caja.enLogin===true && caja.enRegistro === true))
+                                    .map( caja =>                                 
+                                        <div class="form-floating mb-3" key={caja.id}>
+                                            <input type={caja.type} class="form-control" id={caja.id} placeholder={caja.placeholder} onChange={(e) => changeFormData(caja.id, e.target.value)}/>
+                                            <label for={caja.id}>{caja.placeholder}</label>
+                                        </div>
+                                    ) -->
+                        
+
+                        
+
+                        @if ( ! enLogin() ) 
+                        {
+                                                    
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    He leido y acepto la <a href="">politica de privacidad</a>
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked"/>
+                                <label class="form-check-label" for="flexCheckChecked">
+                                    Recibir <strong>descuentos exclusivos</strong>, novedades y tendencias por e-mail. Me puedo dar de baja desde mi panel.
+                                </label>
+                            </div>                                
+                        }   
+
+                        <!-- 
+                                div para el renderizar por codigo el widget de reCaptcha
+                            para referenciarlo en el codigo del componente uso una variable "template" de angular (apunta a dicho elemento del DOM)
+                            https://angular.dev/guide/templates/variables        
+                        -->
+                        <div #recaptchaContainer id="recaptcha-container"></div>
+
+
+                        <div class="m-3">
+                            <div class="col d-grid gap-1">
+                                <button type="button"  
+                                        class="btn pccomponentes-primary" 
+                                        (click)="SubmitForm()">
+                                    <span> {{ ! enLogin() ? 'Crear cuenta' : 'Iniciar Sesion' }}</span>
+                                </button>
+                            </div>
+                        </div> 
+                    </div>
+                </div>    
+
+                <hr/>
+                <div class="row">
+                    <div class="col m-4 d-flex flex-row align-items-center justify-content-center">
+                        <h6><span> {{ enLogin() ? '¿Eres nuevo cliente?':'Ya tengo una cuenta' }} </span></h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col d-grid gap-1">
+                        
+                            @if( isLoading()) 
+                            { 
+                                <!-- <Spinner />  -->
+                                    <p>Loading...</p>
+                            }
+                            @else {                                                                     
+                                <button type="button"  
+                                        class="btn btn-outline-secondary" 
+                                        (click)="SwitchLoginRegistro()">
+                                    <span> {{ enLogin() ? 'Crear cuenta' : 'Iniciar Sesion' }}</span>
+                                </button>
+                            }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

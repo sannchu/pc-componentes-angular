@@ -1,6 +1,0 @@
-.subcategories-panel { position: absolute; inset: 0 auto 0 100%; display: flex; flex-direction: column; width: min(400px, calc(100vw - 400px)); padding: 1.25rem; overflow: auto; border-left: 1px solid #ececec; background: #fff; box-shadow: 8px 0 20px rgb(0 0 0 / 12%); }
-.subcategories-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.subcategories-header h3 { margin: 0; font-size: 1.1rem; }
-.all-category { width: 100%; margin: 1rem 0; }
-.subcategories-list { padding: 0; margin: 0; list-style: none; }
-@media (max-width: 760px) { .subcategories-panel { z-index: 2; inset: 0; width: 100%; border: 0; } }

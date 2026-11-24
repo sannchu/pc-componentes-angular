@@ -1,3 +1,3 @@
-export const environment = {
-    recaptchaSiteKey: '6LdDvy4uAAAAADmxivCgXZBFASEBeInhSz4YoPXu'
+﻿export const environment = {
+    recaptchaPublicIDSiteKey: '6LdDvy4uAAAAADmxivCgXZBFASEBeInhSz4YoPXu'
 };

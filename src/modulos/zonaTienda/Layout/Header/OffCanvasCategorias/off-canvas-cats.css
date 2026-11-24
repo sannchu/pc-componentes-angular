@@ -1,5 +1,0 @@
-.drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: rgb(0 0 0 / 45%); }
-.category-drawer { --bs-offcanvas-width: min(400px, 100vw); z-index: 31; box-shadow: 8px 0 30px rgb(0 0 0 / 18%); }
-.drawer-header { border-bottom: 1px solid #ececec; }
-.drawer-content { min-height: 0; overflow: auto; padding: 1.25rem 1.5rem; }
-.drawer-content h3 { margin: 0 0 .8rem; font-size: 1.25rem; }

@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "pccomponentes_angular": {
+    "PcCOMPONENTES__angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:class": {
@@ -79,16 +79,16 @@
               ]
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "pccomponentes_angular:build:production"
+              "buildTarget": "PcCOMPONENTES__angular:build:production"
             },
             "development": {
-              "buildTarget": "pccomponentes_angular:build:development"
+              "buildTarget": "PcCOMPONENTES__angular:build:development"
             }
           },
           "defaultConfiguration": "development"
